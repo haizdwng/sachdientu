@@ -8,7 +8,7 @@ import { shareFileWithUser } from '@/lib/drive';
 export async function POST(req) {
   try {
     const secretKey = process.env.SEPAY_SECRET_KEY;
-    const requestSecret = req.headers.get('x-secret-key');
+    const requestSecret = req.headers.get('X-Secret-Key');
 
     if (!secretKey || requestSecret !== secretKey) {
       return NextResponse.json(
