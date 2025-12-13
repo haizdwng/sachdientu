@@ -52,7 +52,7 @@ export async function POST(req) {
     const paymentData = {
       code: order.code,
       amount: order.amount,
-      description: `Thanh toan ${order.bookId.title}`,
+      description: `Mua sách ${order.bookId.title} [#${order.code}]`,
       customerId: authResult.user._id.toString(),
     };
 
