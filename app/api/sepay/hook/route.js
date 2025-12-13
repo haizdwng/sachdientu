@@ -7,11 +7,19 @@ import { shareFileWithUser } from '@/lib/drive';
 
 export async function POST(req) {
   try {
-    const data = await req.json();
-    
-    const { code } = data;
+    const secretKey = process.env.SEPAY_SECRET_KEY;
+    const requestSecret = req.headers.get('x-secret-key');
 
-    if (!code) {
+    if (!secretKey || requestSecret !== secretKey) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    const data = await req.json();
+
+    if (!data.order) {
       return NextResponse.json(
         { error: 'Thiếu thông tin đơn hàng' },
         { status: 400 }
@@ -20,7 +28,7 @@ export async function POST(req) {
 
     await connectDB();
 
-    const order = await Order.findOne({ code });
+    const order = await Order.findOne({ code: data.order.invoice_order_number });
 
     if (!order) {
       return NextResponse.json(
@@ -28,6 +36,14 @@ export async function POST(req) {
         { status: 404 }
       );
     }
+
+    if (
+      data.notification_type !== 'ORDER_PAID' ||
+      data.order.order.order_status !== 'CAPTURED'
+    ) return NextResponse.json(
+      { message: 'Không cần cập nhật đơn hàng' },
+      { status: 200 }
+    );
 
     order.status = 'completed';
     await order.save();
