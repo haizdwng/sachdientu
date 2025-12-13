@@ -82,7 +82,7 @@ export async function POST(req) {
       );
     }
 
-    const orderCode = `SDT${Date.now()}`;
+    const orderCode = Number(String(Date.now()).slice(-6));
 
     const order = await Order.create({
       userId: authResult.user._id,

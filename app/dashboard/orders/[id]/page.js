@@ -67,7 +67,7 @@ export default function OrderDetail({ params }) {
     const token = localStorage.getItem('token');
 
     try {
-      const response = await fetch('/api/sepay/payment/cancel', {
+      const response = await fetch('/api/payos/payment/cancel', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

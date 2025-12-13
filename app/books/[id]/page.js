@@ -72,7 +72,7 @@ export default function BookDetail({ params }) {
       const orderData = await orderResponse.json();
 
       if (orderResponse.ok) {
-        const paymentResponse = await fetch('/api/sepay/payment/create', {
+        const paymentResponse = await fetch('/api/payos/payment/create', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -84,20 +84,7 @@ export default function BookDetail({ params }) {
         const paymentData = await paymentResponse.json();
 
         if (paymentResponse.ok) {
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = paymentData.checkoutUrl;
-
-          Object.keys(paymentData.fields).forEach(key => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = paymentData.fields[key];
-            form.appendChild(input);
-          });
-
-          document.body.appendChild(form);
-          form.submit();
+          window.location.href = paymentData.checkoutUrl;
         } else {
           toast.error(paymentData.error);
         }
