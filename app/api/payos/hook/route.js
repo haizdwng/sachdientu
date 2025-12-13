@@ -8,7 +8,7 @@ import { verifyWebhook } from '@/lib/payos';
 
 export async function POST(req) {
   try {
-    const body = req.body;
+    const body = await req.text();
 
     const data = await verifyWebhook(body);
 
