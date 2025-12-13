@@ -50,7 +50,7 @@ export async function POST(req) {
     }
 
     const paymentData = {
-      code: order.code,
+      code: Number(order.code),
       amount: order.amount,
       description: `Thanh toan don hang`
     };
