@@ -12,7 +12,7 @@ export async function POST(req) {
 
     const data = await verifyWebhook(body);
 
-    if (data) {
+    if (!data) {
       return NextResponse.json(
         { error: 'Thiếu thông tin đơn hàng' },
         { status: 400 }
