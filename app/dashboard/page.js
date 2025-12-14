@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -17,19 +17,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    fetchUserData(token);
-    fetchStats(token);
-  }, []);
-
-  const fetchUserData = async (token) => {
+  const fetchUserData = useCallback(async (token) => {
     try {
       const response = await fetch('/api/auth/me', {
         headers: {
@@ -48,7 +36,19 @@ export default function Dashboard() {
       console.error('Error fetching user:', error);
       toast.error('Đã xảy ra lỗi');
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    fetchUserData(token);
+    fetchStats(token);
+  }, [fetchUserData, router]);
 
   const fetchStats = async (token) => {
     try {

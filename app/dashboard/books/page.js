@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -12,18 +12,7 @@ export default function MyBooks() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    fetchOrders(token);
-  }, []);
-
-  const fetchOrders = async (token) => {
+  const fetchOrders = useCallback(async (token) => {
     try {
       const response = await fetch('/api/orders', {
         headers: {
@@ -39,12 +28,23 @@ export default function MyBooks() {
         toast.error('Không thể tải danh sách sách');
       }
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error('Lỗi khi lấy danh sách đơn hàng:', error);
       toast.error('Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    fetchOrders(token);
+  }, [fetchOrders, router]);
 
   if (loading) {
     return (
@@ -71,7 +71,6 @@ export default function MyBooks() {
               ← Quay lại Dashboard
             </Link>
           </div>
-
           {orders.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {orders.map((order) => (
@@ -93,14 +92,11 @@ export default function MyBooks() {
                         Đã mua
                       </div>
                     </div>
-                    
                     <div className="p-4">
                       <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
                         {order.bookId?.title}
                       </h3>
-                      
                       <p className="text-sm text-gray-600 mb-2">{order.bookId?.author}</p>
-                      
                       <div className="flex items-center justify-between mt-4">
                         <span className="text-sm text-gray-500">
                           {new Date(order.createdAt).toLocaleDateString('vi-VN')}

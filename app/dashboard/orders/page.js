@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -11,18 +11,7 @@ export default function Orders() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    fetchOrders(token);
-  }, []);
-
-  const fetchOrders = async (token) => {
+  const fetchOrders = useCallback(async (token) => {
     try {
       const response = await fetch('/api/orders', {
         headers: {
@@ -42,7 +31,18 @@ export default function Orders() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    fetchOrders(token);
+  }, [fetchOrders, router]);
 
   const getStatusBadge = (status) => {
     const badges = {

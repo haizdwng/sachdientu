@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -12,18 +12,7 @@ export default function AdminOrders() {
   const [filter, setFilter] = useState('all');
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    fetchOrders(token);
-  }, []);
-
-  const fetchOrders = async (token) => {
+  const fetchOrders = useCallback(async (token) => {
     try {
       const response = await fetch('/api/orders', {
         headers: { 'Authorization': `Bearer ${token}` },
@@ -37,12 +26,23 @@ export default function AdminOrders() {
         router.push('/');
       }
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error('Lỗi khi lấy đơn hàng:', error);
       toast.error('Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    fetchOrders(token);
+  }, [fetchOrders, router]);
 
   const getStatusBadge = (status) => {
     const badges = {
@@ -95,7 +95,6 @@ export default function AdminOrders() {
               ← Quay lại
             </Link>
           </div>
-
           <div className="mb-6">
             <div className="flex space-x-2">
               <button
@@ -140,7 +139,6 @@ export default function AdminOrders() {
               </button>
             </div>
           </div>
-
           <div className="bg-white shadow-md rounded-lg overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -194,7 +192,6 @@ export default function AdminOrders() {
               </tbody>
             </table>
           </div>
-
           {filteredOrders.length === 0 && (
             <div className="text-center py-12 bg-white mt-6 rounded-lg">
               <p className="text-gray-500">Không có đơn hàng nào</p>

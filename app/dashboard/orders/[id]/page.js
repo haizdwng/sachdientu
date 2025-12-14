@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -22,20 +22,7 @@ export default function OrderDetail({ params }) {
     loadParams();
   }, [params]);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    if (orderId) {
-      fetchOrder(token);
-    }
-  }, [orderId]);
-
-  const fetchOrder = async (token) => {
+  const fetchOrder = useCallback(async (token) => {
     try {
       const response = await fetch(`/api/orders/${orderId}`, {
         headers: {
@@ -56,7 +43,20 @@ export default function OrderDetail({ params }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId, router]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    if (orderId) {
+      fetchOrder(token);
+    }
+  }, [fetchOrder, router, orderId]);
 
   const handleCancelOrder = async () => {
     if (!window.confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
@@ -162,7 +162,7 @@ export default function OrderDetail({ params }) {
               <div className="border-t border-b border-gray-200 py-6 mb-6">
                 <h3 className="text-lg font-semibold mb-4">Thông tin sách</h3>
                 <div className="flex items-center">
-                  <div className="w-24 h-32 flex-shrink-0 bg-gray-200 rounded-md overflow-hidden">
+                  <div className="w-24 h-32 shrink-0 bg-gray-200 rounded-md overflow-hidden">
                     {order.bookId?.image ? (
                       <img
                         src={order.bookId.image}

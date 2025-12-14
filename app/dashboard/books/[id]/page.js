@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -21,20 +21,7 @@ export default function BookDetail({ params }) {
     loadParams();
   }, [params]);
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    if (orderId) {
-      fetchOrder(token);
-    }
-  }, [orderId]);
-
-  const fetchOrder = async (token) => {
+  const fetchOrder = useCallback(async (token) => {
     try {
       const response = await fetch(`/api/orders/${orderId}`, {
         headers: {
@@ -57,12 +44,25 @@ export default function BookDetail({ params }) {
         router.push('/dashboard/books');
       }
     } catch (error) {
-      console.error('Error fetching order:', error);
+      console.error('Lỗi khi lấy đơn hàng:', error);
       toast.error('Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId, router]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    if (orderId) {
+      fetchOrder(token);
+    }
+  }, [router, fetchOrder, orderId]);
 
   const handleDownload = () => {
     if (order?.bookId?.url) {
@@ -102,7 +102,6 @@ export default function BookDetail({ params }) {
               ← Quay lại
             </Link>
           </div>
-
           <div className="bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
               <div>
@@ -120,34 +119,28 @@ export default function BookDetail({ params }) {
                   )}
                 </div>
               </div>
-
               <div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
                   {order.bookId?.title}
                 </h2>
-                
                 <p className="text-xl text-gray-600 mb-4">
                   Tác giả: {order.bookId?.author}
                 </p>
-                
                 {order.bookId?.category && (
                   <span className="inline-block bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm mb-4">
                     {order.bookId.category}
                   </span>
                 )}
-
                 <div className="mb-6">
                   <p className="text-gray-700 leading-relaxed">
                     {order.bookId?.description}
                   </p>
                 </div>
-
                 {order.bookId?.pages && (
                   <p className="text-gray-600 mb-4">
                     Số trang: {order.bookId.pages}
                   </p>
                 )}
-
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                   <p className="text-green-800 font-semibold">
                     ✓ Bạn đã mua sách này
@@ -156,7 +149,6 @@ export default function BookDetail({ params }) {
                     Ngày mua: {new Date(order.createdAt).toLocaleDateString('vi-VN')}
                   </p>
                 </div>
-
                 <div className="space-y-4">
                   <button
                     onClick={handleDownload}
@@ -165,7 +157,6 @@ export default function BookDetail({ params }) {
                     <ArrowDownTrayIcon className="h-6 w-6 mr-2" />
                     Tải xuống
                   </button>
-
                   {order.bookId?.url && (
                     <a
                       href={order.bookId.url}

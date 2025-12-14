@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -11,7 +11,7 @@ export default function Verify() {
   const [status, setStatus] = useState('loading');
   const router = useRouter();
 
-  const verifyEmail = async (token) => {
+  const verifyEmail = useCallback(async (token) => {
     try {
       const response = await fetch('/api/auth/verify', {
         method: 'POST',
@@ -37,7 +37,7 @@ export default function Verify() {
       setStatus('error');
       toast.error('Đã xảy ra lỗi khi xác thực email');
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -52,7 +52,7 @@ export default function Verify() {
 
       verifyEmail(token);
     });
-  }, []);
+  }, [verifyEmail]);
 
   return (
     <>

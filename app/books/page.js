@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import BookCard from '@/components/BookCard';
@@ -14,11 +14,7 @@ export default function Books() {
   const [order, setOrder] = useState('desc');
   const [categories, setCategories] = useState([]);
 
-  useEffect(() => {
-    fetchBooks();
-  }, [search, category, sort, order]);
-
-  const fetchBooks = async () => {
+  const fetchBooks = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -38,12 +34,16 @@ export default function Books() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, category, sort, order]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     fetchBooks();
   };
+
+  useEffect(() => {
+    fetchBooks();
+  }, [fetchBooks, search, category, sort, order]);
 
   return (
     <>
@@ -52,7 +52,6 @@ export default function Books() {
         <div className="bg-white shadow">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-6">Danh sách sách</h1>
-            
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <form onSubmit={handleSearchSubmit} className="md:col-span-2">
                 <div className="relative">
@@ -66,7 +65,6 @@ export default function Books() {
                   <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                 </div>
               </form>
-
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -77,7 +75,6 @@ export default function Books() {
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
-
               <select
                 value={`${sort}-${order}`}
                 onChange={(e) => {
@@ -96,7 +93,6 @@ export default function Books() {
             </div>
           </div>
         </div>
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

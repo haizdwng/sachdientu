@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -12,18 +12,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    fetchUsers(token);
-  }, []);
-
-  const fetchUsers = async (token) => {
+  const fetchUsers = useCallback(async (token) => {
     try {
       const response = await fetch('/api/admin/users', {
         headers: { 'Authorization': `Bearer ${token}` },
@@ -37,12 +26,23 @@ export default function AdminUsers() {
         router.push('/');
       }
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error('Lỗi khi lấy người dùng:', error);
       toast.error('Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    fetchUsers(token);
+  }, [fetchUsers, router]);
 
   const handleDelete = async (userId) => {
     if (!window.confirm('Bạn có chắc muốn xóa người dùng này?')) return;
@@ -67,7 +67,7 @@ export default function AdminUsers() {
         toast.error(data.error);
       }
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error('Lỗi khi xóa người dùng:', error);
       toast.error('Đã xảy ra lỗi');
     }
   };
@@ -97,7 +97,6 @@ export default function AdminUsers() {
               ← Quay lại
             </Link>
           </div>
-
           <div className="bg-white shadow-md rounded-lg overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">

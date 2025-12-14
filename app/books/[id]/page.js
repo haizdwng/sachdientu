@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -15,21 +15,7 @@ export default function BookDetail({ params }) {
   const [bookId, setBookId] = useState(null);
   const router = useRouter();
 
-  useEffect(() => {
-    async function loadParams() {
-      const resolvedParams = await params;
-      setBookId(resolvedParams.id);
-    }
-    loadParams();
-  }, [params]);
-
-  useEffect(() => {
-    if (bookId) {
-      fetchBook();
-    }
-  }, [bookId]);
-
-  const fetchBook = async () => {
+  const fetchBook = useCallback(async () => {
     try {
       const response = await fetch(`/api/books/${bookId}`);
       const data = await response.json();
@@ -41,12 +27,12 @@ export default function BookDetail({ params }) {
         router.push('/books');
       }
     } catch (error) {
-      console.error('Error fetching book:', error);
+      console.error('Lỗi khi lấy sách:', error);
       toast.error('Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
-  };
+  }, [bookId, router]);
 
   const handlePurchase = async () => {
     const token = localStorage.getItem('token');
@@ -92,12 +78,26 @@ export default function BookDetail({ params }) {
         toast.error(orderData.error);
       }
     } catch (error) {
-      console.error('Purchase error:', error);
+      console.error('Lỗi khi mua sách:', error);
       toast.error('Đã xảy ra lỗi khi mua sách');
     } finally {
       setPurchasing(false);
     }
   };
+
+  useEffect(() => {
+    async function loadParams() {
+      const resolvedParams = await params;
+      setBookId(resolvedParams.id);
+    }
+    loadParams();
+  }, [params]);
+
+  useEffect(() => {
+    if (bookId) {
+      fetchBook();
+    }
+  }, [fetchBook, bookId]);
 
   const handleRating = async (rating) => {
     const token = localStorage.getItem('token');
@@ -176,43 +176,34 @@ export default function BookDetail({ params }) {
                   )}
                 </div>
               </div>
-
               <div>
                 <h1 className="text-4xl font-bold text-gray-900 mb-4">{book.title}</h1>
-                
                 <p className="text-xl text-gray-600 mb-4">Tác giả: {book.author}</p>
-                
                 {book.category && (
                   <span className="inline-block bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm mb-4">
                     {book.category}
                   </span>
                 )}
-
                 <div className="flex items-center mb-6">
                   {renderStars(averageRating)}
                   <span className="ml-2 text-lg text-gray-600">
                     ({averageRating}) - {book.rating?.length || 0} đánh giá
                   </span>
                 </div>
-
                 <div className="mb-6">
                   <p className="text-gray-700 leading-relaxed">{book.description}</p>
                 </div>
-
                 {book.pages && (
                   <p className="text-gray-600 mb-4">Số trang: {book.pages}</p>
                 )}
-
                 <div className="mb-6">
                   <span className="text-4xl font-bold text-indigo-600">
                     {book.price.toLocaleString('vi-VN')}₫
                   </span>
                 </div>
-
                 {book.sold > 0 && (
                   <p className="text-gray-600 mb-6">Đã bán: {book.sold} cuốn</p>
                 )}
-
                 <button
                   onClick={handlePurchase}
                   disabled={purchasing}
@@ -230,7 +221,6 @@ export default function BookDetail({ params }) {
                     </>
                   )}
                 </button>
-
                 <div className="mt-8 border-t pt-6">
                   <h3 className="text-lg font-semibold mb-4">Đánh giá sách này</h3>
                   <div className="flex items-center">

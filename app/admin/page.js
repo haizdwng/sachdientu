@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -17,18 +17,7 @@ export default function AdminDashboard() {
   });
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    fetchStats(token);
-  }, []);
-
-  const fetchStats = async (token) => {
+  const fetchStats = useCallback(async (token) => {
     try {
       const [booksRes, usersRes, ordersRes] = await Promise.all([
         fetch('/api/books', {
@@ -59,12 +48,23 @@ export default function AdminDashboard() {
         pendingOrders: ordersData.orders.filter(o => o.status === 'pending').length,
       });
     } catch (error) {
-      console.error('Error fetching stats:', error);
+      console.error('Lỗi khi lấy thống kê:', error);
       toast.error('Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    fetchStats(token);
+  }, [fetchStats, router]);
 
   if (loading) {
     return (
@@ -83,7 +83,6 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Quản trị hệ thống</h1>
-
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center">
@@ -96,7 +95,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center">
                 <div className="p-3 bg-green-100 rounded-full">
@@ -108,7 +106,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center">
                 <div className="p-3 bg-purple-100 rounded-full">
@@ -120,7 +117,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </div>
-
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center">
                 <div className="p-3 bg-yellow-100 rounded-full">
@@ -133,7 +129,6 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link href="/admin/books">
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer">
@@ -146,7 +141,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </Link>
-
             <Link href="/admin/users">
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="flex items-center justify-between">
@@ -158,7 +152,6 @@ export default function AdminDashboard() {
                 </div>
               </div>
             </Link>
-
             <Link href="/admin/orders">
               <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer">
                 <div className="flex items-center justify-between">

@@ -1,5 +1,5 @@
 'use client';
-
+import { useCallback } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -25,18 +25,7 @@ export default function AdminBooks() {
   });
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      router.push('/login');
-      return;
-    }
-
-    fetchBooks(token);
-  }, []);
-
-  const fetchBooks = async (token) => {
+  const fetchBooks = useCallback(async (token) => {
     try {
       const response = await fetch('/api/books', {
         headers: { 'Authorization': `Bearer ${token}` },
@@ -50,12 +39,23 @@ export default function AdminBooks() {
         router.push('/');
       }
     } catch (error) {
-      console.error('Error fetching books:', error);
+      console.error('Lỗi khi lấy sách:', error);
       toast.error('Đã xảy ra lỗi');
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+
+    fetchBooks(token);
+  }, [fetchBooks, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,7 +99,7 @@ export default function AdminBooks() {
         toast.error(data.error);
       }
     } catch (error) {
-      console.error('Submit error:', error);
+      console.error('Lỗi khi gửi dữ liệu:', error);
       toast.error('Đã xảy ra lỗi');
     }
   };
@@ -123,7 +123,7 @@ export default function AdminBooks() {
         toast.error(data.error);
       }
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error('Lỗi khi xóa sách:', error);
       toast.error('Đã xảy ra lỗi');
     }
   };
@@ -194,7 +194,6 @@ export default function AdminBooks() {
               </Link>
             </div>
           </div>
-
           <div className="bg-white shadow-md rounded-lg overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -285,7 +284,7 @@ export default function AdminBooks() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    File ID (Google Drive) *
+                    ID sách
                   </label>
                   <input
                     type="text"
@@ -296,10 +295,9 @@ export default function AdminBooks() {
                     placeholder="ID file trên Google Drive"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tiêu đề *
+                    Tiêu đề
                   </label>
                   <input
                     type="text"
@@ -309,72 +307,71 @@ export default function AdminBooks() {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Tác giả
                   </label>
                   <input
                     type="text"
+                    required
                     value={formData.author}
                     onChange={(e) => setFormData({ ...formData, author: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL
+                    Liên kết
                   </label>
                   <input
                     type="url"
+                    required
                     value={formData.url}
                     onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Mô tả
                   </label>
                   <textarea
                     rows="3"
+                    required
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   ></textarea>
                 </div>
-
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Danh mục
+                      Thể loại
                     </label>
                     <input
                       type="text"
+                      required
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
-
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
                       Số trang
                     </label>
                     <input
                       type="number"
+                      required
                       value={formData.pages}
                       onChange={(e) => setFormData({ ...formData, pages: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    URL ảnh (hoặc /public/image.jpg)
+                    Ảnh
                   </label>
                   <input
                     type="text"
@@ -384,10 +381,9 @@ export default function AdminBooks() {
                     placeholder="/book-cover.jpg"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Giá *
+                    Giá
                   </label>
                   <input
                     type="number"
@@ -398,7 +394,6 @@ export default function AdminBooks() {
                     placeholder="50000"
                   />
                 </div>
-
                 <div className="flex justify-end space-x-3 pt-4">
                   <button
                     type="button"
