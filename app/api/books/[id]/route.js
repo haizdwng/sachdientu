@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Book from '@/models/Book';
-import { requireAdmin } from '@/lib/middleware';
+import { requireAdmin, requireAuth } from '@/lib/middleware';
 
 export async function GET(req, { params }) {
   try {
+    const authResult = await requireAuth(req);
+    
+    if (authResult.error) {
+      return NextResponse.json(
+        { error: authResult.error },
+        { status: authResult.status }
+      );
+    }
+
     const { id } = await params;
     
     await connectDB();
@@ -18,7 +27,7 @@ export async function GET(req, { params }) {
       );
     }
 
-    return NextResponse.json({ book });
+    return NextResponse.json({ book, userId: authResult.user._id });
   } catch (error) {
     console.error('Get book error:', error);
     return NextResponse.json(

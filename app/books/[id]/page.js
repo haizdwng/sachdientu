@@ -1,11 +1,13 @@
 'use client';
-import { useCallback } from 'react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import Navbar from '@/components/Navbar';
 import { StarIcon } from '@heroicons/react/24/solid';
-import { StarIcon as StarOutlineIcon, ShoppingCartIcon } from '@heroicons/react/24/outline';
+import {
+  StarIcon as StarOutlineIcon,
+  ShoppingCartIcon,
+} from '@heroicons/react/24/outline';
 
 export default function BookDetail({ params }) {
   const [book, setBook] = useState(null);
@@ -17,73 +19,28 @@ export default function BookDetail({ params }) {
 
   const fetchBook = useCallback(async () => {
     try {
-      const response = await fetch(`/api/books/${bookId}`);
-      const data = await response.json();
-      
-      if (response.ok) {
-        setBook(data.book);
-      } else {
+      const res = await fetch(`/api/books/${bookId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
         toast.error('Không tìm thấy sách');
         router.push('/books');
+        return;
       }
-    } catch (error) {
-      console.error('Lỗi khi lấy sách:', error);
-      toast.error('Đã xảy ra lỗi');
+
+      setBook(data.book);
+      if (data.book.rating.some(r => String(r.userId) === String(data.userId))) setUserRating(data.book.rating.find(r => String(r.userId) === String(data.userId)).stars);
+    } catch (err) {
+      console.error(err);
+      toast.error('Lỗi khi tải sách');
     } finally {
       setLoading(false);
     }
   }, [bookId, router]);
-
-  const handlePurchase = async () => {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-      toast.warning('Vui lòng đăng nhập để mua sách');
-      router.push('/login');
-      return;
-    }
-
-    setPurchasing(true);
-
-    try {
-      const orderResponse = await fetch('/api/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({ bookId: book._id }),
-      });
-
-      const orderData = await orderResponse.json();
-
-      if (orderResponse.ok) {
-        const paymentResponse = await fetch('/api/payos/payment/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({ orderId: orderData.order._id }),
-        });
-
-        const paymentData = await paymentResponse.json();
-
-        if (paymentResponse.ok) {
-          window.location.href = paymentData.checkoutUrl;
-        } else {
-          toast.error(paymentData.error);
-        }
-      } else {
-        toast.error(orderData.error);
-      }
-    } catch (error) {
-      console.error('Lỗi khi mua sách:', error);
-      toast.error('Đã xảy ra lỗi khi mua sách');
-    } finally {
-      setPurchasing(false);
-    }
-  };
 
   useEffect(() => {
     async function loadParams() {
@@ -94,139 +51,174 @@ export default function BookDetail({ params }) {
   }, [params]);
 
   useEffect(() => {
-    if (bookId) {
-      fetchBook();
-    }
-  }, [fetchBook, bookId]);
+    if (bookId) fetchBook();
+  }, [bookId, fetchBook]);
 
-  const handleRating = async (rating) => {
+  const handleRating = async (stars) => {
     const token = localStorage.getItem('token');
-    
     if (!token) {
       toast.warning('Vui lòng đăng nhập để đánh giá');
       return;
     }
 
-    setUserRating(rating);
-    toast.success('Đánh giá thành công!');
+    try {
+      const res = await fetch(`/api/books/${bookId}/rating`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ stars }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || 'Không thể đánh giá');
+        return;
+      }
+
+      setUserRating(stars);
+      toast.success('Đánh giá thành công');
+      fetchBook();
+    } catch (err) {
+      console.error(err);
+      toast.error('Lỗi khi đánh giá');
+    }
   };
 
   const renderStars = (rating, interactive = false) => {
-    const stars = [];
-    
-    for (let i = 1; i <= 5; i++) {
-      const filled = i <= rating;
-      stars.push(
+    const value = Number(rating);
+    return Array.from({ length: 5 }, (_, i) => {
+      const filled = i + 1 <= value;
+      return (
         <button
           key={i}
-          onClick={() => interactive && handleRating(i)}
           disabled={!interactive}
-          className={interactive ? 'cursor-pointer' : ''}
+          onClick={() => interactive && handleRating(i + 1)}
         >
           {filled ? (
-            <StarIcon className="h-6 w-6 text-yellow-400" />
+            <StarIcon className="cursor-pointer h-6 w-6 text-yellow-400" />
           ) : (
-            <StarOutlineIcon className="h-6 w-6 text-gray-300" />
+            <StarOutlineIcon className="cursor-pointer h-6 w-6 text-gray-300" />
           )}
         </button>
       );
-    }
-    
-    return stars;
+    });
   };
 
-  const averageRating = book?.rating?.length > 0
-    ? (book.rating.reduce((a, b) => a + b, 0) / book.rating.length).toFixed(1)
-    : 0;
+  const averageRating =
+    book?.rating?.length > 0
+      ? (
+          book.rating.reduce((sum, r) => sum + r.stars, 0) /
+          book.rating.length
+        ).toFixed(1)
+      : 0;
+
+  const handlePurchase = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.warning('Vui lòng đăng nhập để mua sách');
+      router.push('/login');
+      return;
+    }
+
+    setPurchasing(true);
+
+    try {
+      const orderRes = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ bookId: book._id }),
+      });
+
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        toast.error(orderData.error);
+        return;
+      }
+
+      const payRes = await fetch('/api/payos/payment/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ orderId: orderData.order._id }),
+      });
+
+      const payData = await payRes.json();
+      if (!payRes.ok) {
+        toast.error(payData.error);
+        return;
+      }
+
+      window.location.href = payData.checkoutUrl;
+    } catch (err) {
+      console.error(err);
+      toast.error('Lỗi khi mua sách');
+    } finally {
+      setPurchasing(false);
+    }
+  };
 
   if (loading) {
     return (
       <>
         <Navbar />
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600"></div>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin h-16 w-16 border-b-2 border-indigo-600 rounded-full" />
         </div>
       </>
     );
   }
 
-  if (!book) {
-    return null;
-  }
+  if (!book) return null;
 
   return (
     <>
       <Navbar />
       <div className="min-h-screen bg-gray-50 py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8">
-              <div>
-                <div className="aspect-w-3 aspect-h-4 bg-gray-200 rounded-lg overflow-hidden">
-                  {book.image ? (
-                    <img
-                      src={book.image}
-                      alt={book.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400">
-                      <span className="text-9xl">📚</span>
-                    </div>
-                  )}
-                </div>
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="bg-white rounded-lg shadow-lg p-8 grid md:grid-cols-2 gap-8">
+            <img
+              src={book.image || '/book-placeholder.png'}
+              alt={book.title}
+              className="rounded-lg object-cover"
+            />
+
+            <div>
+              <h1 className="text-4xl font-bold mb-4">{book.title}</h1>
+              <p className="text-gray-600 mb-2">Tác giả: {book.author}</p>
+
+              <div className="flex items-center mb-4">
+                {renderStars(averageRating)}
+                <span className="ml-2 text-gray-600">
+                  ({averageRating}) · {book.rating.length} đánh giá
+                </span>
               </div>
-              <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-4">{book.title}</h1>
-                <p className="text-xl text-gray-600 mb-4">Tác giả: {book.author}</p>
-                {book.category && (
-                  <span className="inline-block bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full text-sm mb-4">
-                    {book.category}
-                  </span>
-                )}
-                <div className="flex items-center mb-6">
-                  {renderStars(averageRating)}
-                  <span className="ml-2 text-lg text-gray-600">
-                    ({averageRating}) - {book.rating?.length || 0} đánh giá
-                  </span>
-                </div>
-                <div className="mb-6">
-                  <p className="text-gray-700 leading-relaxed">{book.description}</p>
-                </div>
-                {book.pages && (
-                  <p className="text-gray-600 mb-4">Số trang: {book.pages}</p>
-                )}
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-indigo-600">
-                    {book.price.toLocaleString('vi-VN')}₫
-                  </span>
-                </div>
-                {book.sold > 0 && (
-                  <p className="text-gray-600 mb-6">Đã bán: {book.sold} cuốn</p>
-                )}
-                <button
-                  onClick={handlePurchase}
-                  disabled={purchasing}
-                  className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
-                >
-                  {purchasing ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Đang xử lý...
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCartIcon className="h-6 w-6 mr-2" />
-                      Mua ngay
-                    </>
-                  )}
-                </button>
-                <div className="mt-8 border-t pt-6">
-                  <h3 className="text-lg font-semibold mb-4">Đánh giá sách này</h3>
-                  <div className="flex items-center">
-                    {renderStars(userRating, true)}
-                  </div>
-                </div>
+
+              <p className="mb-4 text-gray-700">{book.description}</p>
+
+              <p className="text-4xl font-bold text-indigo-600 mb-6">
+                {book.price.toLocaleString('vi-VN')}₫
+              </p>
+
+              <button
+                onClick={handlePurchase}
+                disabled={purchasing}
+                className="w-full bg-indigo-600 text-white py-3 rounded-lg flex justify-center items-center"
+              >
+                <ShoppingCartIcon className="h-6 w-6 mr-2" />
+                Mua ngay
+              </button>
+
+              <div className="mt-8 border-t pt-6">
+                <h3 className="font-semibold mb-2">Đánh giá sách</h3>
+                <div className="flex">{renderStars(userRating, true)}</div>
               </div>
             </div>
           </div>
