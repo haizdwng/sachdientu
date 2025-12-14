@@ -11,7 +11,10 @@ const inter = Inter({
 
 export const metadata = {
   title: 'Sách Điện Tử',
-  description: 'Cửa hàng sách điện tử hàng đầu Việt Nam'
+  description: 'Cửa hàng sách điện tử hàng đầu Việt Nam',
+  icons: {
+    icon: '/icon.png'
+  }
 };
 
 export default function RootLayout({ children }) {
