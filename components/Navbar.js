@@ -49,13 +49,13 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-white shadow-lg">
+    <nav className="bg-white shadow-lg fixed w-full top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-2xl font-bold text-indigo-600">
-                📚 Ebook Store
+              <Link href="/" className="flex items-center justify-between text-2xl font-bold text-indigo-600">
+                <img src="/logo.png" alt="Sách Điện Tử" className="h-10 w-10 rounded-lg" />
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
