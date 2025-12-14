@@ -4,27 +4,25 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { StarIcon as StarOutlineIcon } from '@heroicons/react/24/outline';
 
 export default function BookCard({ book }) {
-  const averageRating = book.rating?.length > 0
-    ? (book.rating.reduce((a, b) => a + b, 0) / book.rating.length).toFixed(1)
-    : 0;
+  const averageRating =
+    book.rating?.length > 0
+      ? (
+          book.rating.reduce((sum, r) => sum + r.stars, 0) /
+          book.rating.length
+        ).toFixed(1)
+      : 0;
 
   const renderStars = (rating) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        stars.push(
-          <StarIcon key={i} className="h-5 w-5 text-yellow-400" />
-        );
-      } else {
-        stars.push(
-          <StarOutlineIcon key={i} className="h-5 w-5 text-gray-300" />
-        );
-      }
-    }
-    
-    return stars;
+    const value = Number(rating);
+    const fullStars = Math.floor(value);
+
+    return Array.from({ length: 5 }, (_, i) =>
+      i < fullStars ? (
+        <StarIcon key={i} className="h-5 w-5 text-yellow-400" />
+      ) : (
+        <StarOutlineIcon key={i} className="h-5 w-5 text-gray-300" />
+      )
+    );
   };
 
   return (
@@ -43,28 +41,28 @@ export default function BookCard({ book }) {
             </div>
           )}
         </div>
-        
+
         <div className="p-4 flex-1 flex flex-col">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+          <h3 className="text-lg font-semibold mb-2 line-clamp-2">
             {book.title}
           </h3>
-          
+
           <p className="text-sm text-gray-600 mb-2">{book.author}</p>
-          
+
           {book.category && (
             <span className="inline-block bg-indigo-100 text-indigo-800 text-xs px-2 py-1 rounded mb-2">
               {book.category}
             </span>
           )}
-          
+
           <div className="flex items-center mb-2">
             {renderStars(averageRating)}
             <span className="ml-2 text-sm text-gray-600">
               ({averageRating})
             </span>
           </div>
-          
-          <div className="mt-auto flex items-center justify-between">
+
+          <div className="mt-auto flex justify-between items-center">
             <span className="text-2xl font-bold text-indigo-600">
               {book.price.toLocaleString('vi-VN')}₫
             </span>
