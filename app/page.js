@@ -31,26 +31,55 @@ export default function Home() {
       <Navbar />
       
       <div className="min-h-screen bg-gray-50">
-        <div className="relative bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
-            <div className="text-center">
-              <h1 className="text-5xl font-bold mb-6">
-                Khám phá thế giới tri thức
-              </h1>
-              <p className="text-xl mb-8 max-w-2xl mx-auto">
-                Hàng ngàn cuốn sách điện tử chất lượng cao đang chờ bạn khám phá. 
-                Đọc mọi lúc, mọi nơi trên mọi thiết bị.
-              </p>
-              <Link
-                href="/books"
-                className="inline-flex items-center bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-              >
-                Khám phá ngay
-                <ArrowRightIcon className="ml-2 h-5 w-5" />
-              </Link>
+        <div className="relative bg-[url('/banner.jpeg')] bg-cover bg-center text-white">
+          <div className="absolute inset-0 bg-black/50"></div>
+
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+            <h1 className="text-5xl font-bold mb-6">
+              Khám phá thế giới tri thức
+            </h1>
+            <p className="text-xl mb-8 max-w-2xl mx-auto">
+              Hàng ngàn cuốn sách điện tử chất lượng cao đang chờ bạn khám phá. 
+              Đọc mọi lúc, mọi nơi trên mọi thiết bị.
+            </p>
+            <Link
+              href="/books"
+              className="inline-flex items-center bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+            >
+              Khám phá ngay
+              <ArrowRightIcon className="ml-2 h-5 w-5" />
+            </Link>
+          </div>
+        </div>
+
+        <div className="bg-white py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="text-4xl mb-4">📚</div>
+                <h3 className="text-xl font-semibold mb-2">Thư viện đa dạng</h3>
+                <p className="text-gray-600">
+                  Hàng ngàn đầu sách từ nhiều thể loại khác nhau
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl mb-4">💳</div>
+                <h3 className="text-xl font-semibold mb-2">Thanh toán dễ dàng</h3>
+                <p className="text-gray-600">
+                  Hỗ trợ nhiều hình thức thanh toán an toàn
+                </p>
+              </div>
+              <div className="text-center">
+                <div className="text-4xl mb-4">📱</div>
+                <h3 className="text-xl font-semibold mb-2">Đọc mọi lúc mọi nơi</h3>
+                <p className="text-gray-600">
+                  Truy cập trên mọi thiết bị, bất kỳ lúc nào
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="flex justify-between items-center mb-8">
@@ -89,34 +118,6 @@ export default function Home() {
               <p className="text-gray-500">Chưa có sách nào</p>
             </div>
           )}
-        </div>
-
-        <div className="bg-white py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="text-4xl mb-4">📚</div>
-                <h3 className="text-xl font-semibold mb-2">Thư viện đa dạng</h3>
-                <p className="text-gray-600">
-                  Hàng ngàn đầu sách từ nhiều thể loại khác nhau
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl mb-4">💳</div>
-                <h3 className="text-xl font-semibold mb-2">Thanh toán dễ dàng</h3>
-                <p className="text-gray-600">
-                  Hỗ trợ nhiều hình thức thanh toán an toàn
-                </p>
-              </div>
-              <div className="text-center">
-                <div className="text-4xl mb-4">📱</div>
-                <h3 className="text-xl font-semibold mb-2">Đọc mọi lúc mọi nơi</h3>
-                <p className="text-gray-600">
-                  Truy cập trên mọi thiết bị, bất kỳ lúc nào
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </>
