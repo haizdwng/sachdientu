@@ -5,21 +5,11 @@ import { requireAdmin, requireAuth } from '@/lib/middleware';
 
 export async function GET(req, { params }) {
   try {
-    const authResult = await requireAuth(req);
-    
-    if (authResult.error) {
-      return NextResponse.json(
-        { error: authResult.error },
-        { status: authResult.status }
-      );
-    }
-
-    const { id } = await params;
-    
     await connectDB();
 
+    const { id } = await params;
     const book = await Book.findById(id);
-    
+
     if (!book) {
       return NextResponse.json(
         { error: 'Không tìm thấy sách' },
@@ -27,7 +17,17 @@ export async function GET(req, { params }) {
       );
     }
 
-    return NextResponse.json({ book, userId: authResult.user._id });
+    let userId = null;
+
+    const authResult = await requireAuth(req, false);
+    if (authResult && authResult.user) {
+      userId = authResult.user._id;
+    }
+
+    return NextResponse.json({
+      book,
+      userId
+    });
   } catch (error) {
     console.error('Get book error:', error);
     return NextResponse.json(
@@ -36,6 +36,7 @@ export async function GET(req, { params }) {
     );
   }
 }
+
 
 export async function PUT(req, { params }) {
   try {
