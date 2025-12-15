@@ -3,6 +3,7 @@ import connectDB from '@/lib/db';
 import Order from '@/models/Order';
 import { requireAuth } from '@/lib/middleware';
 import { cancelPayment } from '@/lib/payos';
+import { sendOrderCancellation } from '@/lib/mailer';
 
 export async function POST(req) {
   try {
@@ -53,6 +54,8 @@ export async function POST(req) {
 
     order.status = 'cancelled';
     await order.save();
+
+    await sendOrderCancellation(authResult.user.email, order.code);
 
     return NextResponse.json({
       message: 'Hủy đơn hàng thành công',

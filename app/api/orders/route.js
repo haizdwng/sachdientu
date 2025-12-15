@@ -3,6 +3,7 @@ import connectDB from '@/lib/db';
 import Order from '@/models/Order';
 import Book from '@/models/Book';
 import { requireAuth } from '@/lib/middleware';
+import { sendOrderInformation } from '@/lib/mailer';
 
 export async function GET(req) {
   try {
@@ -90,6 +91,13 @@ export async function POST(req) {
       code: orderCode,
       amount: book.price,
       status: 'pending',
+    });
+
+    await sendOrderInformation(authResult.user.email, {
+      orderCode,
+      items: [{ title: book.title, price: book.price }],
+      totalAmount: book.price,
+      orderDate: order.createdAt,
     });
 
     return NextResponse.json(
