@@ -27,14 +27,23 @@ export default function Books() {
       const data = await response.json();
       setBooks(data.books);
 
-      const uniqueCategories = [...new Set(data.books.map(book => book.category).filter(Boolean))];
-      setCategories(uniqueCategories);
+      if (categories.length === 0) {
+        const allRes = await fetch('/api/books');
+        const allData = await allRes.json();
+
+        const uniqueCategories = [
+          ...new Set(allData.books.map(b => b.category).filter(Boolean))
+        ];
+        setCategories(uniqueCategories);
+      }
+
     } catch (error) {
       console.error('Error fetching books:', error);
     } finally {
       setLoading(false);
     }
-  }, [search, category, sort, order]);
+  }, [search, category, sort, order, categories.length]);
+
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
