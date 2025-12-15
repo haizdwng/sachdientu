@@ -210,7 +210,7 @@ export default function BookDetail({ params }) {
               <button
                 onClick={handlePurchase}
                 disabled={purchasing}
-                className="w-full bg-indigo-600 text-white py-3 rounded-lg flex justify-center items-center"
+                className="cursor-pointer w-full bg-indigo-600 text-white py-3 rounded-lg flex justify-center items-center"
               >
                 <ShoppingCartIcon className="h-6 w-6 mr-2" />
                 Mua ngay

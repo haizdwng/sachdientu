@@ -181,7 +181,7 @@ export default function AdminBooks() {
             <div className="flex space-x-4">
               <button
                 onClick={() => setShowAddModal(true)}
-                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center"
+                className="cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 Thêm sách

@@ -52,7 +52,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
+            <div className="shrink-0 flex items-center">
               <Link href="/" className="flex items-center justify-between text-2xl font-bold text-indigo-600">
                 <img src="/logo.png" alt="Sách Điện Tử" className="h-10 w-10 rounded-lg" />
               </Link>
@@ -94,7 +94,7 @@ export default function Navbar() {
                 )}
                 <button
                   onClick={handleLogout}
-                  className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700"
+                  className="cursor-pointer bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700"
                 >
                   Đăng xuất
                 </button>
@@ -166,7 +166,7 @@ export default function Navbar() {
                 )}
                 <button
                   onClick={handleLogout}
-                  className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
+                  className="cursor-pointer block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700"
                 >
                   Đăng xuất
                 </button>
