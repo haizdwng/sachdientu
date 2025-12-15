@@ -19,6 +19,10 @@ export async function POST(req) {
       );
     }
 
+    if (process.env.NODE_ENV === 'deverlopment') return NextResponse.json({
+      message: 'Cấu hình Webhook thành công'
+    }, { status: 200 });
+
     await connectDB();
 
     const order = await Order.findOne({ code: data.orderCode });
