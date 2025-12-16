@@ -64,12 +64,34 @@ export default function BookDetail({ params }) {
     }
   }, [router, fetchOrder, orderId]);
 
-  const handleDownload = () => {
-    if (order?.bookId?.url) {
-      window.open(order.bookId.url, '_blank');
-      toast.success('Đang tải xuống...');
-    } else {
-      toast.error('Link tải không khả dụng');
+  const handleDownload = async () => {
+    try {
+      const res = await fetch(`/api/books/${order.bookId._id}/download`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+      });
+
+      if (!res.ok) {
+        toast.error('Không thể tải sách');
+        return;
+      }
+
+      toast.info('Đang tải sách...');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${order.bookId.title}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      toast.success('Tải sách thành công');
+    } catch (error) {
+      toast.error('Đã xảy ra lỗi khi tải xuống sách');
     }
   };
 
