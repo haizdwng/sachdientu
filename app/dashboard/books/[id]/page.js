@@ -10,6 +10,7 @@ import { ArrowDownTrayIcon, EyeIcon } from '@heroicons/react/24/outline';
 export default function BookDetail({ params }) {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
   const [orderId, setOrderId] = useState(null);
   const router = useRouter();
 
@@ -65,6 +66,7 @@ export default function BookDetail({ params }) {
   }, [router, fetchOrder, orderId]);
 
   const handleDownload = async () => {
+    setDownloading(true);
     try {
       const res = await fetch(`/api/books/${order.bookId._id}/download`, {
         method: 'GET',
@@ -93,6 +95,7 @@ export default function BookDetail({ params }) {
     } catch (error) {
       toast.error('Đã xảy ra lỗi khi tải xuống sách');
     }
+    setDownloading(false);
   };
 
   if (loading) {
@@ -174,6 +177,7 @@ export default function BookDetail({ params }) {
                 <div className="space-y-4">
                   <button
                     onClick={handleDownload}
+                    disabled={downloading}
                     className="w-full bg-indigo-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-indigo-700 flex items-center justify-center"
                   >
                     <ArrowDownTrayIcon className="h-6 w-6 mr-2" />
