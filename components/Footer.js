@@ -19,7 +19,7 @@ export default function Footer() {
                 href="mailto:contact@sachdientu.dev"
                 className="hover:text-gray-900"
               >
-                contact@sachdientu.dev
+                contact@ebooksachdientu.vercel.app
               </a>
             </div>
             <div className="flex items-center gap-2">
