@@ -292,7 +292,6 @@ export default function AdminBooks() {
                     value={formData.id}
                     onChange={(e) => setFormData({ ...formData, id: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="ID file trên Google Drive"
                   />
                 </div>
                 <div>
@@ -378,7 +377,6 @@ export default function AdminBooks() {
                     value={formData.image}
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="/book-cover.jpg"
                   />
                 </div>
                 <div>
@@ -391,7 +389,6 @@ export default function AdminBooks() {
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    placeholder="50000"
                   />
                 </div>
                 <div className="flex justify-end space-x-3 pt-4">
