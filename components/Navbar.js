@@ -22,7 +22,7 @@ export default function Navbar() {
         setUser(data.user);
       }
     } catch (error) {
-      console.error('Error fetching user:', error);
+      console.error('Lỗi khi lấy thông tin người dùng:', error);
     }
   };
 
